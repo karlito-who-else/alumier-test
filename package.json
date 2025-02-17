@@ -1,0 +1,30 @@
+{
+  "name": "alumier-test",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "graphql-codegen:admin": "pnpm graphql-codegen --project=admin",
+    "graphql-codegen:storefront": "pnpm graphql-codegen --project=admin",
+    "retrieve-orders-by-product-id": "node src/admin/retrieve-orders-by-product-id.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@shopify/admin-api-client": "^1.0.5",
+    "@shopify/shopify-api": "^11.8.1",
+    "@shopify/storefront-api-client": "^1.0.4",
+    "dotenv": "^16.4.7",
+    "graphql": "^16.10.0"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.5",
+    "@parcel/watcher": "^2.5.1",
+    "@shopify/api-codegen-preset": "^1.1.4",
+    "@types/node": "^22.13.4",
+    "graphql-config": "^5.1.3",
+    "typescript": "^5.7.3"
+  }
+}
