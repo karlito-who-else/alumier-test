@@ -36,7 +36,7 @@ I felt this benefit was and the knock-on effect of requiring two repositories wa
         1. From the "Create an app" dialog, provide a name your app (I have used "Retrieve Orders" for the purposes of this test) and then click the "Create app" button.
     1. Select the relevant access scopes
         1. From the settings page for your app (e.g. https://admin.shopify.com/store/{store-name}/settings/apps/development/{app-id}/overview), navigate to the "Configuration" tab and then click the "Configure Admin API scopes" button.
-        1. From the "Admin API access scopes" screen, check the checkboxes for "read_orders" and "read_products" and then click the "Save" button.
+        1. From the "Admin API access scopes" screen, check the checkboxes for "read_customers", "read_orders" and "read_products" and then click the "Save" button.
         1. From the settings page for your app, navigate to the "API credentials" tab and then click the "Install app" button.
         1. Click the "Install" button on the subsequent "Install {app name} on {store name}?" dialog.
         1. From the "API credentials" tab, click the "Reveal token once" button in the "Admin API access token" panel.  Copy this value and paste it into the `SHOPIFY_ORDERS_ADMIN_API_ACCESS_TOKEN` value in the `.env` file.  Note that this value will only be visible once, so if you lose it, you will need to regenerate a new app.
@@ -56,6 +56,29 @@ I felt this benefit was and the knock-on effect of requiring two repositories wa
 Run the following command in the terminal:
 ```sh
 pnpm retrieve-orders-by-product-id
+```
+
+Example output:
+```sh
+Found 1 orders containing product gid://shopify/Product/15153767186767 in the last 30 days.
+
+
+Order: #1001
+  Order ID: gid://shopify/Order/11478961160527
+  Order confirmation number: Z3I0NLUFG
+  Order date: 2025-02-19T11:10:13Z
+  Customer's ID: gid://shopify/Customer/23068518973775
+  Customer's name: Karl Podger
+  Customer's email: karl.podger@primeordinal.com
+  Customer's locale: en
+  Customer's total orders to date: 1
+  Customer's total amount spent to date: £159.99
+  Customer's predicted spend tier: N/A
+  Customer's account created at: 2025-02-19T11:09:17Z
+  Product ID: gid://shopify/Product/15153767186767
+  Product Title: LED High Tops
+  Product Category ID: gid://shopify/TaxonomyCategory/aa-8-8
+  Product Category Name: Apparel & Accessories > Shoes > Sneakers
 ```
 
 ### webhook

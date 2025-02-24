@@ -1,24 +1,25 @@
-export interface ResponseError {
-  // message: string
-  // locations: {
-  //   line: number
-  //   column: number
-  // }[]
-  extensions: {
-    code: "THROTTLED" | "INTERNAL_SERVER_ERROR" | "BAD_USER_INPUT"
-    retryAfter?: number
-  }
+export interface ShopifyAdminAPIErrorLike {
 }
 
-export interface ShopifyErrorLike {
-  status: number
+export interface ShopifyAPIResponseErrorsLike {
+  graphQLErrors: any[]
   message: Error
-  response: {
-    // status: number
-    // statusText: string
-    // url: string
-    // headers: Record<string, string>
-    errors: ResponseError[]
+  networkStatusCode: number
+  response: Response
+}
+
+export interface ShopifyResponse {
+  data: unknown
+  extensions: {
+    cost: {
+      requestedQueryCost: number,
+      actualQueryCost: number,
+      throttleStatus: {
+        maximumAvailable: number,
+        currentlyAvailable: number,
+        restoreRate: number,
+      }
+    }
   }
 }
 
