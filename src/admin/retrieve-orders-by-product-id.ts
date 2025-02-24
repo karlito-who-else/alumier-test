@@ -1,46 +1,86 @@
-import "dotenv/config";
-import '@shopify/shopify-api/adapters/node';
-import { shopifyApi } from "@shopify/shopify-api";
+import type { OrdersWithProductQuery } from '../../types/admin/admin.generated.d.ts';
+import { client } from './utilities/client.ts';
+import { formatErrorMessage, isShopifyError } from './utilities/type-guards.ts';
 
-const { SHOPIFY_ORDERS_APP_API_SECRET_KEY, SHOPIFY_ADMIN_API_VERSION, SHOPIFY_ORDERS_ADMIN_API_ACCESS_TOKEN, SHOPIFY_STORE_NAME } = process.env;
-
-if (!SHOPIFY_ORDERS_APP_API_SECRET_KEY || !SHOPIFY_ADMIN_API_VERSION || !SHOPIFY_ORDERS_ADMIN_API_ACCESS_TOKEN || !SHOPIFY_STORE_NAME) {
-  throw new Error('Missing required environment variables.');
-}
-
-const hostName = `${SHOPIFY_STORE_NAME}.myshopify.com`;
-
-const shopify = shopifyApi({
-  apiSecretKey: SHOPIFY_ORDERS_APP_API_SECRET_KEY, // Note: this is the API Secret Key, NOT the API access token
-  apiVersion: SHOPIFY_ADMIN_API_VERSION,
-  isCustomStoreApp: true, // this MUST be set to true (default is false)
-  adminApiAccessToken: SHOPIFY_ORDERS_ADMIN_API_ACCESS_TOKEN, // Note: this is the API access token, NOT the API Secret Key
-  isEmbeddedApp: false,
-  hostName,
-});
-
-const session = shopify.session.customAppSession(hostName);
-
-const client = new shopify.clients.Graphql({session});
-
-const response = await client.request(
-  `#graphql
-  query productHandles($first: Int!) {
-    products(first: $first) {
-      edges {
-        node {
-          handle
+const ordersWithProduct = `#graphql
+    query ordersWithProduct($query: String, $first: Int = 128, $after: String) {
+      orders(query: $query, first: $first, after: $after) {
+        edges {
+          node {
+            id
+            name
+            createdAt
+            lineItems(first: 128) {
+              edges {
+                node {
+                  product {
+                    id
+                  }
+                }
+              }
+            }
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
         }
       }
     }
-  }`,
-  {
-    variables: {
-      first: 10,
-    },
-  },
-);
+  `;
 
-response.data?.products?.edges.forEach((edge: any) => {
-  console.log(edge.node.handle);
-});
+async function getOrders(productId: string, createdAfter: string, afterCursor: string | null = null): Promise<any[]> {
+  const variables = {
+    after: afterCursor,
+    query: `created_at:>='${createdAfter}'`,
+  };
+
+  try {
+    const response = await client.request(ordersWithProduct, variables);
+
+    const { data }: { data: OrdersWithProductQuery } = response;
+
+    const orders = data.orders.edges.map((edge) => edge.node).filter((order) => {
+        return order.lineItems.edges.some((lineItem) => lineItem.node.product?.id === productId);
+    });
+
+    if (data.orders.pageInfo.hasNextPage) {
+        const nextOrders = await getOrders(productId, createdAfter, data.orders.pageInfo.endCursor);
+        return orders.concat(nextOrders);
+    } else {
+        return orders;
+    }
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+
+    if (isShopifyError(error)) {
+      console.error(formatErrorMessage(error.message));
+      // console.error(error);
+    }
+    else if (typeof error === 'string') {
+      console.error(error)
+    }
+
+    throw error; // Re-throw other errors
+  }
+}
+
+const days = 30;
+
+const today = new Date();
+
+const createdAfterDate = new Date();
+createdAfterDate.setDate(today.getDate() - days);
+
+const createdAfter = createdAfterDate.toISOString();
+
+const productId = 'gid://shopify/Product/15153767186767';
+
+try {
+  const allOrders = await getOrders(productId, createdAfter);
+  console.log(`Found ${allOrders.length} orders containing product ${productId} in the last ${days} days.`);
+
+  allOrders.forEach(order => console.log(order.name, order.createdAt));
+} catch (error) {
+  console.error('An error occurred', error);
+}

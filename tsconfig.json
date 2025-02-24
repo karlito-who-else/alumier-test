@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
-    "module": "esnext",
-    "moduleResolution": "nodenext",
+    "allowImportingTsExtensions": true,
+    "module": "ESNext",
+    "noEmit": true,
     "strict": true,
-    "target": "ESNext"
+    "target": "ESNext",
+    "typeRoots": ["./node_modules/@types", "./types"]
   }
 }

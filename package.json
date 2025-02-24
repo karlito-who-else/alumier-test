@@ -6,12 +6,14 @@
   "scripts": {
     "graphql-codegen:admin": "pnpm graphql-codegen --project=admin",
     "graphql-codegen:storefront": "pnpm graphql-codegen --project=admin",
+    "retrieve-product-handles": "node src/admin/retrieve-product-handles.ts",
     "retrieve-orders-by-product-id": "node src/admin/retrieve-orders-by-product-id.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
     "@shopify/admin-api-client": "^1.0.5",
     "@shopify/shopify-api": "^11.8.1",
