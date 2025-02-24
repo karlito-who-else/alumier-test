@@ -1,7 +1,6 @@
-import type { ResponseErrors } from "@shopify/shopify-api";
 import type { OrdersWithProductQuery } from '../../types/admin/admin.generated.d.ts';
-import { client } from './utilities/client.ts';
-import { formatErrorMessage, isShopifyError } from './utilities/type-guards.ts';
+import { graphqlClient } from '../utilities/client.ts';
+import { formatErrorMessage, isShopifyError } from '../utilities/type-guards.ts';
 
 type OrderResponse = OrdersWithProductQuery['orders']['edges'][number]['node'];
 
@@ -67,20 +66,24 @@ async function getOrders(productId: string, createdAfter: string, afterCursor: s
   };
 
   try {
-    const response = await client.request(ordersWithProduct, variables);
+    const response = await graphqlClient.request(ordersWithProduct, variables);
 
-    const { data, errors }: { data: OrdersWithProductQuery, errors: ResponseErrors } = response;
+    const { data, errors } = response;
 
     if (errors) {
-      throw new AggregateError(errors, "Error(s) fetching orders");
+      if (errors.graphQLErrors) {
+        throw new AggregateError(errors.graphQLErrors, errors.message);
+      }
+  
+      throw new Error(errors.message);
     }
 
-    const orders = data.orders.edges.map((edge) => edge.node).filter((order) => {
+    const orders = data?.orders.edges.map((edge) => edge.node).filter((order) => {
       return order.lineItems.edges.some((lineItem) => lineItem.node.product?.id === productId);
-    });
+    }) ?? [];
 
-    if (data.orders.pageInfo.hasNextPage) {
-      const nextOrders = await getOrders(productId, createdAfter, data.orders.pageInfo.endCursor);
+    if (data?.orders.pageInfo.hasNextPage) {
+      const nextOrders = await getOrders(productId, createdAfter, data?.orders.pageInfo.endCursor);
       return orders.concat(nextOrders);
     } else {
       return orders;

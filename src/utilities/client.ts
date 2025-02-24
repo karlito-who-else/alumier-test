@@ -10,7 +10,7 @@ if (!SHOPIFY_ORDERS_APP_API_SECRET_KEY || !SHOPIFY_ORDERS_ADMIN_API_ACCESS_TOKEN
 
 const hostName = `${SHOPIFY_STORE_NAME}.myshopify.com`;
 
-const shopify = shopifyApi({
+export const shopify = shopifyApi({
   adminApiAccessToken: SHOPIFY_ORDERS_ADMIN_API_ACCESS_TOKEN, // Note: this is the API access token, NOT the API Secret Key
   apiSecretKey: SHOPIFY_ORDERS_APP_API_SECRET_KEY, // Note: this is the API Secret Key, NOT the API access token
   apiVersion: LATEST_API_VERSION,
@@ -24,6 +24,6 @@ const shopify = shopifyApi({
   isEmbeddedApp: false,
 });
 
-const session = shopify.session.customAppSession(hostName);
+export const session = shopify.session.customAppSession(hostName);
 
-export const client = new shopify.clients.Graphql({session});
+export const graphqlClient = new shopify.clients.Graphql({session});

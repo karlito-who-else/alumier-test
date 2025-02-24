@@ -31,7 +31,7 @@ export function isObject(
   )
 };
 
-export function isShopifyError(error: unknown): error is ShopifyErrorLike {
+export function isShopifyError(error: unknown): error is ShopifyAPIResponseErrorsLike {
   if (!isObject(error))
     return false
 

@@ -1,7 +1,5 @@
-import type { ResponseErrors } from "@shopify/shopify-api";
-import type { ProductHandlesQuery } from '../../types/admin/admin.generated.d.ts';
-import { client } from './utilities/client.ts';
-import { formatErrorMessage, isShopifyError } from './utilities/type-guards.ts';
+import { graphqlClient } from '../utilities/client.ts';
+import { formatErrorMessage, isShopifyError } from '../utilities/type-guards.ts';
 
 const productHandles = `#graphql
   query productHandles($first: Int = 16) {
@@ -18,7 +16,7 @@ const productHandles = `#graphql
 
 try {
 
-  const response = await client.request(
+  const response = await graphqlClient.request(
     productHandles,
     {
       variables: {
@@ -27,10 +25,14 @@ try {
     },
   );
 
-  const { data, errors }: { data: ProductHandlesQuery, errors: ResponseErrors } = response;
+  const { data, errors } = response;
 
   if (errors) {
-    throw new AggregateError(errors, "Error(s) fetching product handles");
+    if (errors.graphQLErrors) {
+      throw new AggregateError(errors.graphQLErrors, errors.message);
+    }
+
+    throw new Error(errors.message);
   }
 
   data?.products?.edges.forEach((edge) => {

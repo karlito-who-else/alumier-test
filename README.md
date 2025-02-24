@@ -1,7 +1,7 @@
 # Alumier Test
 I have used two repositories to complete this test:
+* https://github.com/karlito-who-else/alumier-test (this repository)
 * https://github.com/karlito-who-else/alumier-test-shopify-theme
-* https://github.com/karlito-who-else/alumier-test-node
 
 I am aware that I was instructed to use a single repository, however I have chosen to use two repositories to allow installation of the Shopify theme to a Shopify store instance using the "Connect from GitHub" method in the Shopify store's Theme settings, which will allow automatic updates to the theme when changes are pushed to the repository.
 
